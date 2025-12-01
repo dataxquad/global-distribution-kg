@@ -47,4 +47,15 @@ This project follows Semantic Versioning. See [GOVERNANCE.md](GOVERNANCE.md) for
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+**Copyright © 2025 Distify.ai**
+
+This project is licensed under the **Apache License, Version 2.0** (the "License").
+
+We chose the Apache 2.0 license to provide explicit **patent grants** and legal certainty, ensuring that enterprises and B2B partners can adopt this Global Distribution Knowledge Graph Schema with confidence.
+
+You are free to:
+* **Commercial Use:** Use this schema in proprietary software and commercial products.
+* **Modify:** Change the schema to fit your specific needs.
+* **Distribute:** Share copies or modified versions of the schema.
+
+Subject to the conditions of the license (attribution and stating changes). See the [LICENSE](LICENSE) file for the full text.
