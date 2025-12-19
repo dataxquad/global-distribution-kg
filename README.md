@@ -1,61 +1,63 @@
-# Global Distribution Knowledge Graph Schema
+# Global Distribution Knowledge Graph (Fact-First Schema)
 
-> **A Deep Contextual Engine for the Future of B2B Distribution**
+> **A Truth-Anchored Graph for the Future of B2B Distribution**
 
-This repository contains the public schema for a **Global Distribution Knowledge Graph**. It is designed to model the entire equipment distribution value chain—from manufacturers to franchisees to end customers and their equipment assets—enabling AI agents to understand and act upon deep business context.
+This repository contains the schema and operating principles for the **Global Distribution Knowledge Graph**.
 
-## Vision
+Unlike traditional rigid schemas, this model is designed for **LLM Extraction and Agentic Reasoning**. It prioritizes **strict factual correctness** over convenient labeling, ensuring that AI agents can reason about history, intent, and commitments without hallucinating relationships that don't exist.
 
-The goal is to build a **Deep Contextual Engine** that revolutionizes how B2B distribution companies preserve context and eliminate miscommunication. By structuring data into a semantic graph, we can:
+## Core Philosophy: Fact-First Design
 
--   **Eliminate "Boring Middle Management"**: Automate coordination and information routing.
--   **Empower Agents**: Give AI agents the deep context they need to make decisions, not just chat.
--   **Preserve Institutional Memory**: Capture the "pulse" of the business (interactions, decisions, relationships) alongside the static records.
+We distinguish strictly between three layers of truth. This prevents "inference leakage" where beliefs are stored as facts.
 
-## Architecture: Spine & Flesh
+| Layer | Definition | Example | Storage |
+| :--- | :--- | :--- | :--- |
+| **1. Facts** | Observable, historical reality. | "Company A ordered Widget X." | `Event`, `Order`, `Equipment` |
+| **2. Intent** | Beliefs, plans, or targets. | "Company A is a prospect." | `Opportunity`, `Goal` |
+| **3. Commitments** | Binding agreements. | "Signed Distribution Contract." | `CommercialRelationship` |
 
-The schema is organized into two primary layers:
+> **Rule:** Never store Intent as a Fact. A "Prospect" is a derived state, not a label.
 
-1.  **The Spine (Value Chain Structure)**: The rigid backbone of the market.
-    -   `Manufacturer` → `Distributor` → `Franchisee` → `Customer` → `Equipment`
-2.  **The Flesh (Cadence & Context)**: The dynamic pulse of business.
-    -   `Interaction`, `Task`, `Document`, `Opportunity`
+## The Schema (V2)
 
-See [schema/concepts.md](schema/concepts.md) for a visual diagram of this architecture.
+The current standard is defined in **[schema/schema_v2.md](schema/schema_v2.md)**.
 
-## Repository Structure
+### Key Design Decisions
 
--   `schema/`: The core specification.
-    -   `concepts.md`: Core entities, principles, and data model diagram.
-    -   `schema.md`: Detailed definitions of Entities and Relationships.
--   `guidelines_and_examples/`: Implementation guides.
-    -   `organizing_principles.md`: LLM extraction rules.
-    -   `technical_specs.md`: Indexing, security, and performance specs.
-    -   `validation_rules.md`: Cardinality and property constraints.
-    -   `example_queries.cypher`: 10+ example Cypher queries.
--   `resources/`: Standard reference data (e.g., ISIC codes).
+#### 1. Unified Product Entity
+*   **Decision**: There is only `Product`.
+*   **Why**: A battery is a product. A robot is a product. A spare part is a product. Differentiating them via labels (`:Part`, `:Accessory`) is fragile.
+*   **Implementation**: `(Product)-[:BELONGS_TO_CATEGORY]->(ProductCategory)`.
+
+#### 2. Physical vs. Abstract (The Instance Rule)
+*   **Decision**: `Equipment` is a physical instance of a `Product`.
+*   **Principle**: "**Products are what you sell. Equipment is what exists.**"
+*   **Implementation**: `(Equipment)-[:INSTANCE_OF]->(Product)`.
+
+#### 3. Reified Commercial Relationships
+*   **Decision**: Companies are NOT connected by direct edges like `[:PARTNER_OF]`.
+*   **Why**: Relationships have state (Active, Expired), dates, and contracts. Direct edges cannot model history or expiry cleanly.
+*   **Implementation**: `(Company)-[:HAS_RELATIONSHIP]->(CommercialRelationship)<-[:HAS_RELATIONSHIP]-(Company)`.
+
+#### 4. Event-Sourced History
+*   **Decision**: No mutable "Status" nodes.
+*   **Why**: Progress is a summary of history, not a thing that exists.
+*   **Implementation**: Store `Events` (Meetings, Signatures). Derive status at query time.
+
+## Documentation Structure
+
+*   **[schema/schema_v2.md](schema/schema_v2.md)**: **THE SOURCE OF TRUTH.** Key entities, properties, and relationships.
+*   **[guidelines_and_examples/organizing_principles.md](guidelines_and_examples/organizing_principles.md)**: **Design Challenges & Decisions.** Read this to understand the *why* behind the schema (Fact vs Insight, Handling Uncertainty).
+*   **[guidelines_and_examples/example_queries.cypher](guidelines_and_examples/example_queries.cypher)**: Standard patterns for querying this specific graph structure.
 
 ## Getting Started
 
-1.  **Explore the Schema**: Start with [schema/concepts.md](schema/concepts.md) to understand the core model.
-2.  **View Examples**: Check `guidelines_and_examples/example_queries.cypher` for Neo4j queries.
-3.  **Implement**: Use the `guidelines_and_examples/organizing_principles.md` to configure your LLM extraction pipelines.
-
-## Governance
-
-This project follows Semantic Versioning. See [GOVERNANCE.md](GOVERNANCE.md) for contribution guidelines and change management processes.
+1.  **Read the Principles**: Start with `guidelines_and_examples/organizing_principles.md` to align your mindset.
+2.  **Review the Schema**: `schema/schema_v2.md` contains the extraction rules.
+3.  **Validate**: Ensure your LLM prompts extract *Verbs* (Facts), not *Roles* (Inferences).
 
 ## License
 
 **Copyright © 2025 Distify.ai**
 
-This project is licensed under the **Apache License, Version 2.0** (the "License").
-
-We chose the Apache 2.0 license to provide explicit **patent grants** and legal certainty, ensuring that enterprises and B2B partners can adopt this Global Distribution Knowledge Graph Schema with confidence.
-
-You are free to:
-* **Commercial Use:** Use this schema in proprietary software and commercial products.
-* **Modify:** Change the schema to fit your specific needs.
-* **Distribute:** Share copies or modified versions of the schema.
-
-Subject to the conditions of the license (attribution and stating changes). See the [LICENSE](LICENSE) file for the full text.
+This project is licensed under the **Apache License, Version 2.0**. You are free to use, modify, and distribute this schema for commercial and proprietary use, provided you give appropriate credit.
